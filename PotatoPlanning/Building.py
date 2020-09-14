@@ -3,6 +3,8 @@ from typing import List
 from scipy import linalg
 
 PARAM_NAMES = ('Tin', 'P', 'R', 'C', 'Qall', 'Tset')
+
+
 class System:
     def __init__(self):
         '''
