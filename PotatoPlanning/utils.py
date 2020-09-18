@@ -14,7 +14,7 @@ def generate_solar_radiation(days, peak):
         for hour in range(24):
             solar[(day-1)*24 + hour, 0] = hour
             # south facade:
-            solar[(day-1)*24 + hour, 1] = max(-1./108*peak*(hour-6)*(hour-8), 0)*cloudiness*round(random.uniform(0.90, 1.10), 2)
+            solar[(day-1)*24 + hour, 1] = max(-1./108*peak*(hour-6)*(hour-18), 0)*cloudiness*round(random.uniform(0.90, 1.10), 2)
             # west facade:
             if hour < 14:
                 solar[(day-1)*24 + hour, 2] = max(1./12*peak*hour - 1./2*peak, 0)*cloudiness*round(random.uniform(0.90, 1.10), 2)
@@ -47,6 +47,6 @@ if __name__ == "__main__":
     #print(solar_df)
     #solar_df.to_csv('Austin_Simulated_solar_4orientations.csv', index=False)
 
-    full_schedule = generate_schedule('Schedule.csv', 92)
+    full_schedule = generate_schedule('Test_Daily_Schedule.csv', 92)
     print(full_schedule)
-    full_schedule.to_csv('Full_schedule.csv', index=False)
+    full_schedule.to_csv('Test_Full_schedule.csv', index=False)

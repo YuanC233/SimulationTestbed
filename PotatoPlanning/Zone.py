@@ -76,6 +76,8 @@ class Zone:
 
     def update_Qall(self, step):
         self.Qall = self.Qall_schedule.iloc[step] + self.solar_schedule.iloc[step]
+        #print('Qall', self.Qall_schedule.iloc[step])
+        #print('Solar', self.solar_schedule.iloc[step])
 
     def setup_solar_radiation_schedule(self, other):
         self.solar_schedule = other

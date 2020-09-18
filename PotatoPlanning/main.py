@@ -4,19 +4,20 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-SIM_TIMESTEP = 24*30
+SIM_TIMESTEP = 24*7
 
 # read zone parameters from csv file
 zone_info = pd.read_csv('ZoneInfo.csv')
 #print(zone_info)
 
 # read zone schedule (Tset and Qall): as now, each zone has it own schedule
+# schedule = pd.read_csv('Full_schedule.csv')
 schedule = pd.read_csv('Full_schedule.csv')
 #print(schedule)
 
 # read solar radiation profile for 4 orientations
 #solar_radiation = pd.read_csv('Simulated_solar_4orientations.csv')
-solar_radiation = pd.read_csv('Austin_Simulated_solar_4orientations.csv')
+solar_radiation = pd.read_csv('Austin_solar_data_input.csv')
 
 # create zone object with zone_info
 zone_dict = {}
@@ -44,17 +45,17 @@ for zone_obj in zone_dict.values():
 #print([i for i in zone_dict[1].get_neighbors()]) # get all neighbor ids
 
 for zone_obj in zone_dict.values():
-    if zone_obj.orient == '1':
+    if zone_obj.orient == 1:
         zone_obj.setup_solar_radiation_schedule(solar_radiation.iloc[:SIM_TIMESTEP, 1]*zone_obj.windowA/1000)
-    elif zone_obj.orient == '2':
+    elif zone_obj.orient == 2:
         zone_obj.setup_solar_radiation_schedule(solar_radiation.iloc[:SIM_TIMESTEP, 2]*zone_obj.windowA/1000)
-    elif zone_obj.orient == '3':
+    elif zone_obj.orient == 3:
         zone_obj.setup_solar_radiation_schedule(solar_radiation.iloc[:SIM_TIMESTEP, 3]*zone_obj.windowA/1000)
-    elif zone_obj.orient == '4':
+    elif zone_obj.orient == 4:
         zone_obj.setup_solar_radiation_schedule(solar_radiation.iloc[:SIM_TIMESTEP, 4]*zone_obj.windowA/1000)
     else:  # should be 0, internal zone
         zone_obj.setup_solar_radiation_schedule(solar_radiation.iloc[:SIM_TIMESTEP, 2] * zone_obj.windowA/1000)
-    #print(zone_obj.solar_schedule)
+
 
 # read outdoor temperature
 # weather = pd.read_csv('Cornell_Tout_model_input.csv')
@@ -87,8 +88,8 @@ for step in range(SIM_TIMESTEP):
     system_HVAC_load[:, step] = current_load.squeeze()
     for zone in system1.zonelist:
         zone.update_Tin()
-        print(zone.Tin)
-print(system_HVAC_load)
+        #print(zone.Tin)
+#print(system_HVAC_load)
 
 x = range(0, SIM_TIMESTEP, 1)
 plt.figure(figsize=(20, 8))
