@@ -73,6 +73,7 @@ class System:
     def get_all_zone_P(self):
         return self.all_zone_P
 
+
     def get_all_zone_R(self):
         return self.all_zone_R
 

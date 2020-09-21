@@ -47,6 +47,8 @@ if __name__ == "__main__":
     #print(solar_df)
     #solar_df.to_csv('Austin_Simulated_solar_4orientations.csv', index=False)
 
-    full_schedule = generate_schedule('Test_Daily_Schedule.csv', 92)
-    print(full_schedule)
-    full_schedule.to_csv('Test_Full_schedule.csv', index=False)
+    #full_schedule = generate_schedule('Test_Daily_Schedule.csv', 92)
+    #print(full_schedule)
+    #full_schedule.to_csv('Test_Full_schedule.csv', index=False)
+    negative = -1*np.ones((4, 1))
+    print((negative >= 0) )

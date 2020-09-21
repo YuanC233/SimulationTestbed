@@ -4,15 +4,15 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-SIM_TIMESTEP = 24*7
+SIM_TIMESTEP = 24*3
 
 # read zone parameters from csv file
 zone_info = pd.read_csv('ZoneInfo.csv')
 #print(zone_info)
 
 # read zone schedule (Tset and Qall): as now, each zone has it own schedule
-# schedule = pd.read_csv('Full_schedule.csv')
 schedule = pd.read_csv('Full_schedule.csv')
+# schedule = pd.read_csv('Test_Full_schedule.csv')
 #print(schedule)
 
 # read solar radiation profile for 4 orientations
@@ -65,8 +65,9 @@ weather = pd.read_csv('Austin_Tout_model_input.csv')
 # initiate system
 system1 = System()
 
-# initiate system load
-system_HVAC_load = np.zeros((len(zone_dict), SIM_TIMESTEP))
+# initiate system load and indoor temperature
+system_HVAC_load = np.zeros((SIM_TIMESTEP, len(zone_dict)))
+Tin = np.zeros((SIM_TIMESTEP, len(zone_dict)))
 
 # main loop
 for step in range(SIM_TIMESTEP):
@@ -85,16 +86,27 @@ for step in range(SIM_TIMESTEP):
     #print(system1.get_B())
     #print(system1.get_W())
     current_load = system1.load_calculation(deltaT=1)
-    system_HVAC_load[:, step] = current_load.squeeze()
+    #print(current_load)
+    system_HVAC_load[step, :] = (current_load.squeeze()>=0)*current_load.squeeze()
+    #system_HVAC_load[step, :] = current_load.squeeze()
+
     for zone in system1.zonelist:
-        zone.update_Tin()
-        #print(zone.Tin)
+        zone.update_P(system_HVAC_load[step, zone.ID-1])
+        #print('zoneP',zone.ID, zone.P)
+    system1.update_zonelist(zone_dict.values())
+    current_T = system1.discrete_systemT_update(deltaT=1)
+    #print(current_T)
+    Tin[step, :] = current_T.squeeze()
+    for zone in system1.zonelist:
+        zone.update_Tin(Tin[step, zone.ID-1])
+        #print('zoneT',zone.Tin)
+    system1.update_zonelist(zone_dict.values())
 #print(system_HVAC_load)
 
 x = range(0, SIM_TIMESTEP, 1)
 plt.figure(figsize=(20, 8))
-plt.plot(x, system_HVAC_load[0, :], x, system_HVAC_load[1, :], x, system_HVAC_load[2, :], x, system_HVAC_load[3, :],
-x, system_HVAC_load[4, :])
+plt.plot(x, system_HVAC_load[:, 0], x, system_HVAC_load[:, 1], x, system_HVAC_load[:, 2], x, system_HVAC_load[:, 3],
+x, system_HVAC_load[:, 4])
 plt.xlabel('Time of the day(hour)')
 plt.ylabel('HVAC Load (kW)')
 plt.legend(['Zone1: south', 'Zone2: west', 'Zone3: east', 'Zone4: north', 'Zone5: interior'])
@@ -113,3 +125,33 @@ plt.xlabel('Time of the day(hour)')
 plt.ylabel('Setpoint Temp (C)')
 plt.legend(['Zone1', 'Zone2', 'Zone3', 'Zone4', 'Zone5', 'Tout'])
 plt.show()
+
+plt.figure()
+plt.plot(x, Tin[:, 0], x, Tin[:, 1], x, Tin[:, 2], x, Tin[:, 3], Tin[:, 4])
+plt.xlabel('Time of the day (hour)')
+plt.ylabel('Room Temp (C)')
+plt.legend(['Zone1', 'Zone2', 'Zone3', 'Zone4', 'Zone5'])
+plt.show()
+
+
+fig, ax1 = plt.subplots()
+color = 'tab:red'
+ax1.set_xlabel('Time of the day (hour)')
+ax1.set_ylabel('Temp (C)')
+ax1.plot(x, Tin[:, 0], x, schedule.iloc[:SIM_TIMESTEP, 1], color=color)
+ax1.tick_params(axis='y', labelcolor=color)
+ax1.legend(['Tin', 'Setpoint Temp'])
+
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:blue'
+ax2.set_ylabel('Load', color=color)  # we already handled the x-label with ax1
+ax2.plot(x, schedule.iloc[:SIM_TIMESTEP, 2], x, system_HVAC_load[:, 0], color=color)
+ax2.tick_params(axis='y', labelcolor=color)
+ax2.legend(['Q exog', 'HVAC load'])
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
+plt.show()
+
+#print(system_HVAC_load)
+#print(Tin)

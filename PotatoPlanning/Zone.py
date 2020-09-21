@@ -33,19 +33,13 @@ class Zone:
         self.Qall = None
         self.Tin = Tinit
         self.orient = orient
-        self.P = 0
+        self.P = None
         self.condition = condition # 1 for heating and -1 for cooling
         self.Tset_schedule = Tset_schedule
         self.Tset = None
         self.windowA = windowA
         self.solar_schedule = None
         self.solar = None
-
-        #self.Tout = Toutall[0]
-        #self.status = False
-        #self.Toutall = Toutall
-        #self.Tlow = self.Tset - 0.5
-        #self.Thigh = self.Tset + 0.5
 
 
     def get_ID(self):
@@ -68,11 +62,15 @@ class Zone:
     def get_current_Tin(self):
         return self.Tin
 
-    def update_Tin(self):
-        self.Tin = self.Tset
+    def update_Tin(self, other):
+        self.Tin = other
 
     def update_Tset(self, step):
         self.Tset = self.Tset_schedule.iloc[step]
+
+
+    def update_P(self, other):
+        self.P = other
 
     def update_Qall(self, step):
         self.Qall = self.Qall_schedule.iloc[step] + self.solar_schedule.iloc[step]
