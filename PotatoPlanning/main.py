@@ -4,14 +4,14 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-SIM_TIMESTEP = 24*3
+SIM_TIMESTEP = 24*92
 
 # read zone parameters from csv file
 zone_info = pd.read_csv('ZoneInfo.csv')
 #print(zone_info)
 
 # read zone schedule (Tset and Qall): as now, each zone has it own schedule
-schedule = pd.read_csv('Full_schedule.csv')
+schedule = pd.read_csv('Testbed_Full_schedule.csv')
 # schedule = pd.read_csv('Test_Full_schedule.csv')
 #print(schedule)
 
@@ -93,14 +93,18 @@ for step in range(SIM_TIMESTEP):
     for zone in system1.zonelist:
         zone.update_P(system_HVAC_load[step, zone.ID-1])
         #print('zoneP',zone.ID, zone.P)
-    system1.update_zonelist(zone_dict.values())
+
+    #system1.update_zonelist(zone_dict.values())
+    system1.update_all_zone_P()
+
     current_T = system1.discrete_systemT_update(deltaT=1)
     #print(current_T)
     Tin[step, :] = current_T.squeeze()
     for zone in system1.zonelist:
         zone.update_Tin(Tin[step, zone.ID-1])
         #print('zoneT',zone.Tin)
-    system1.update_zonelist(zone_dict.values())
+    #system1.update_zonelist(zone_dict.values())
+    system1.update_all_zone_Tin()
 #print(system_HVAC_load)
 
 x = range(0, SIM_TIMESTEP, 1)
@@ -112,21 +116,21 @@ plt.ylabel('HVAC Load (kW)')
 plt.legend(['Zone1: south', 'Zone2: west', 'Zone3: east', 'Zone4: north', 'Zone5: interior'])
 plt.show()
 
-plt.figure()
+plt.figure(figsize=(20, 8))
 plt.plot(x, schedule.iloc[:SIM_TIMESTEP, [2, 4, 6, 8, 10]])
 plt.xlabel('Time of the day(hour)')
 plt.ylabel('Exog Q (kW)')
 plt.legend(['Zone1', 'Zone2', 'Zone3', 'Zone4', 'Zone5'])
 plt.show()
 
-plt.figure()
+plt.figure(figsize=(20, 8))
 plt.plot(x, schedule.iloc[:SIM_TIMESTEP, [1, 3, 5, 7, 9]], x, weather.iloc[:SIM_TIMESTEP, 1])
 plt.xlabel('Time of the day(hour)')
 plt.ylabel('Setpoint Temp (C)')
 plt.legend(['Zone1', 'Zone2', 'Zone3', 'Zone4', 'Zone5', 'Tout'])
 plt.show()
 
-plt.figure()
+plt.figure(figsize=(20, 8))
 plt.plot(x, Tin[:, 0], x, Tin[:, 1], x, Tin[:, 2], x, Tin[:, 3], Tin[:, 4])
 plt.xlabel('Time of the day (hour)')
 plt.ylabel('Room Temp (C)')
@@ -153,5 +157,8 @@ ax2.legend(['Q exog', 'HVAC load'])
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
 
-#print(system_HVAC_load)
+system_load = pd.DataFrame(system_HVAC_load)
+print(system_load)
+print(type(system_load))
+system_load.to_csv('Testbed_HVAC_load_output.csv', index=False)
 #print(Tin)

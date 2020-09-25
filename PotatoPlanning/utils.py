@@ -29,12 +29,28 @@ def generate_solar_radiation(days, peak):
             solar[(day-1)*24 + hour, 4] = max(-1./144*peak*(hour-6)*(hour-18), 0)*cloudiness*round(random.uniform(0.90, 1.10), 2)
     return solar
 
+
 def generate_schedule(file, days):
     schedule = pd.read_csv(file)
     full_schedule = pd.read_csv(file)
     for i in range(days):
         full_schedule = full_schedule.append(schedule, ignore_index=True)
     return full_schedule
+
+
+def generate_load_comparison_plot(HVAC_load, non_HVAC_load, step):
+    HVAC = pd.read_csv(HVAC_load)
+    non_HVAC = pd.read_csv(non_HVAC_load)
+    HVAC_zone1 = HVAC.iloc[:step, 1]
+    non_HVAC_zone1 = non_HVAC.iloc[:step, 2]
+
+    x = range(step)
+
+    # stacked area plot for zone1
+    # Basic stacked area chart.
+    plt.stackplot(x, HVAC_zone1, non_HVAC_zone1, labels=['Zone1_HVAC', 'Zone1_nonHVAC'])
+    plt.legend(loc='upper left')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -47,8 +63,8 @@ if __name__ == "__main__":
     #print(solar_df)
     #solar_df.to_csv('Austin_Simulated_solar_4orientations.csv', index=False)
 
-    #full_schedule = generate_schedule('Test_Daily_Schedule.csv', 92)
+    #full_schedule = generate_schedule('Daily_Schedule.csv', 92)
     #print(full_schedule)
-    #full_schedule.to_csv('Test_Full_schedule.csv', index=False)
-    negative = -1*np.ones((4, 1))
-    print((negative >= 0) )
+    #full_schedule.to_csv('Full_schedule.csv', index=False)
+
+    generate_load_comparison_plot('Testbed_HVAC_load_output.csv', 'Testbed_Full_schedule.csv', step=24*7)

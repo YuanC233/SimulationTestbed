@@ -67,12 +67,23 @@ class System:
                 params[zone.ID - 1, 0] = zone.__getattribute__(name)
             self.__setattr__(f'all_zone_{name}', params)
 
+    def update_all_zone_Tin(self):
+        Tins = np.zeros((self.syssize, 1))
+        for zone in self.zonelist:
+            Tins[zone.ID - 1, 0] = zone.Tin
+        self.all_zone_Tin = Tins
+
+    def update_all_zone_P(self):
+        P = np.zeros((self.syssize, 1))
+        for zone in self.zonelist:
+            P[zone.ID - 1, 0] = zone.P
+        self.all_zone_P = P
+
     def get_all_zone_Tin(self):
         return self.all_zone_Tin
 
     def get_all_zone_P(self):
         return self.all_zone_P
-
 
     def get_all_zone_R(self):
         return self.all_zone_R
