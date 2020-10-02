@@ -4,13 +4,13 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-SIM_TIMESTEP = 24*92
+SIM_TIMESTEP = 24*3
 
 # read zone parameters from csv file
 zone_info = pd.read_csv('ZoneInfo.csv')
 #print(zone_info)
 
-# read zone schedule (Tset and Qall): as now, each zone has it own schedule
+# read zone schedule (Tset and Qall): as now, each zone has its own schedule
 schedule = pd.read_csv('Testbed_Full_schedule.csv')
 # schedule = pd.read_csv('Test_Full_schedule.csv')
 #print(schedule)
@@ -160,5 +160,5 @@ plt.show()
 system_load = pd.DataFrame(system_HVAC_load)
 print(system_load)
 print(type(system_load))
-system_load.to_csv('Testbed_HVAC_load_output.csv', index=False)
+#system_load.to_csv('Testbed_HVAC_load_output_1002.csv', index=False)
 #print(Tin)
