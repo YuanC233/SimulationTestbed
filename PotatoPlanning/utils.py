@@ -62,7 +62,7 @@ def generate_load_decomposition(T, t, s, i, e, step):
     internal = pd.read_csv(i)
     equipment = pd.read_csv(e)
     To = Tout.iloc[:step, 1]
-    solar_load = (solar.iloc[:step, 1] + solar.iloc[:step, 2] + solar.iloc[:step, 3] + solar.iloc[:step, 4])*5/1000
+    solar_load = (solar.iloc[:step, 1] + solar.iloc[:step, 2] + solar.iloc[:step, 3] + solar.iloc[:step, 4])*5/1000/3
     internal_load = internal.iloc[:step, 2] + internal.iloc[:step, 4] + internal.iloc[:step, 6] + internal.iloc[:step, 8] + internal.iloc[:step, 10]
     equipment_load = equipment.iloc[:step, 1]*200
     conductive = total.iloc[:step, 1] - equipment_load - internal_load - solar_load

@@ -3,8 +3,13 @@ from Building import System
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+import random
 
-SIM_TIMESTEP = 24*3
+
+SIM_TIMESTEP = 24*30
+
+# set up simulation mode: unperturbed or perturbed
+perturb = True
 
 # read zone parameters from csv file
 zone_info = pd.read_csv('ZoneInfo.csv')
@@ -69,12 +74,26 @@ system1 = System()
 system_HVAC_load = np.zeros((SIM_TIMESTEP, len(zone_dict)))
 Tin = np.zeros((SIM_TIMESTEP, len(zone_dict)))
 
+
+perturb_schedule = []
+
 # main loop
 for step in range(SIM_TIMESTEP):
     # at each timestep set zone Tset and Qall according to schedule
+
+    # if we want to perturb all zones using the same schedule, then set perturb outside of the update loop, else, bring
+    # it into the loop
+    if perturb:
+        p = 1.0 * random.randrange(-1, 2, 2)
+        perturb_schedule.append(p)
+    else:
+        p = 0
+
     for zone_obj in zone_dict.values():
+        # update all exog heat flow for each timestep for all zones
         zone_obj.update_Qall(step)
-        zone_obj.update_Tset(step)
+        # update all Tset for each timestep for all zones
+        zone_obj.update_Tset(step, p)
 
     system1.update_zonelist(zone_dict.values())
     #print(zone_dict.values())
@@ -86,8 +105,19 @@ for step in range(SIM_TIMESTEP):
     #print(system1.get_B())
     #print(system1.get_W())
     current_load = system1.load_calculation(deltaT=1)
-    #print(current_load)
-    system_HVAC_load[step, :] = (current_load.squeeze()>=0)*current_load.squeeze()
+    #system_HVAC_load[step, :] = (current_load.squeeze() >= 0) * current_load.squeeze()
+
+
+    for zone in system1.zonelist:
+        if current_load[zone.ID-1, :] <= zone.Pmax and current_load[zone.ID-1, :] >= 0:
+            system_HVAC_load[step, zone.ID-1] = current_load[zone.ID-1, :]
+        elif current_load[zone.ID-1, :] < 0:
+            system_HVAC_load[step, zone.ID-1] = 0
+        elif current_load[zone.ID-1, :] > zone.Pmax:
+            print(zone.ID, zone.Pmax)
+            system_HVAC_load[step, zone.ID-1] = zone.Pmax
+
+
     #system_HVAC_load[step, :] = current_load.squeeze()
 
     for zone in system1.zonelist:
@@ -158,7 +188,9 @@ fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
 
 system_load = pd.DataFrame(system_HVAC_load)
-print(system_load)
-print(type(system_load))
-#system_load.to_csv('Testbed_HVAC_load_output_1002.csv', index=False)
+#print(system_load)
+#print(type(system_load))
+#print(perturb_schedule)
+
+#system_load.to_csv('Testbed_HVAC_load_output_1023.csv', index=False)
 #print(Tin)

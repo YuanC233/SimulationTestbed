@@ -56,10 +56,6 @@ class System:
             self.clg = True
             self.htg = False
 
-    # continuous-time system dynamics equation
-    # Tdot = AT + BP + w
-    # T is zone indoor temp, P is power
-
     def generate_all_zone_params(self, names):
         for name in names:
             params = np.zeros((self.syssize, 1))
@@ -118,6 +114,10 @@ class System:
         for i in range(self.syssize):
             Rij[i, i] = -Rij[i, :].sum()
         return Rij
+
+    # continuous-time system dynamics equation
+    # Tdot = AT + BP + w
+    # T is zone indoor temp, P is power
 
     def init_A(self):
         C = self.get_all_zone_C()

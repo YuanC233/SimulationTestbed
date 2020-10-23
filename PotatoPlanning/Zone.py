@@ -65,9 +65,8 @@ class Zone:
     def update_Tin(self, other):
         self.Tin = other
 
-    def update_Tset(self, step):
-        self.Tset = self.Tset_schedule.iloc[step]
-
+    def update_Tset(self, step, p):
+        self.Tset = self.Tset_schedule.iloc[step] + p
 
     def update_P(self, other):
         self.P = other
